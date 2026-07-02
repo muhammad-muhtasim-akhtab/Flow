@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flow — Momentum, Mapped</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --abyss:#071b26;
+  --current:#0d3340;
+  --current-2:#123f4d;
+  --flow:#2fd6d9;
+  --flow-deep:#0f9aa3;
+  --surge:#ff6b3d;
+  --surge-2:#ff8f5e;
+  --foam:#eefbfa;
+  --chalk:#a9c8ce;
+  --chalk-dim:#7a99a0;
+  --ink:#04141c;
+  --line:rgba(255,255,255,.09);
+  --glass:linear-gradient(160deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+  --radius:20px;
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth; scroll-padding-top:88px;}
+body{
+  font-family:'Manrope',sans-serif;
+  background:var(--abyss);
+  color:var(--chalk);
+  line-height:1.65;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+img,svg{display:block; max-width:100%;}
+a{color:inherit; text-decoration:none;}
+::selection{background:var(--flow); color:var(--ink);}
+::-webkit-scrollbar{width:10px;}
+::-webkit-scrollbar-track{background:var(--abyss);}
+::-webkit-scrollbar-thumb{background:var(--current-2); border-radius:10px;}
+::-webkit-scrollbar-thumb:hover{background:var(--flow-deep);}
+
+.container{max-width:1180px; margin:0 auto; padding:0 28px;}
+
+h1,h2,h3{
+  font-family:'Bebas Neue',sans-serif;
+  font-weight:400;
+  color:var(--foam);
+  letter-spacing:.02em;
+  line-height:1.05;
+}
+
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.76rem;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--flow);
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+}
+.eyebrow::before{
+  content:'';
+  width:16px; height:2px;
+  background:var(--surge);
+  display:inline-block;
+}
+
+.section-title{font-size:clamp(2.1rem,4.6vw,3.3rem); margin:.4em 0 .45em;}
+.lead{max-width:560px; font-size:1.05rem; color:var(--chalk);}
+section{position:relative; padding:110px 0;}
+
+/* buttons */
+.btn{
+  position:relative;
+  overflow:hidden;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.85rem;
+  font-weight:600;
+  letter-spacing:.03em;
+  padding:15px 28px;
+  border-radius:100px;
+  border:none;
+  cursor:pointer;
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .35s ease, background .3s ease;
+}
+.btn-primary{
+  background:linear-gradient(120deg, var(--flow), var(--flow-deep));
+  color:var(--ink);
+  box-shadow:0 8px 24px -8px rgba(47,214,217,.55);
+}
+.btn-primary:hover{transform:translateY(-3px) scale(1.02); box-shadow:0 14px 30px -8px rgba(47,214,217,.7);}
+.btn-primary:active{transform:translateY(-1px) scale(.98);}
+.btn-ghost{
+  background:transparent;
+  color:var(--foam);
+  border:1px solid var(--line);
+}
+.btn-ghost:hover{border-color:var(--flow); color:var(--flow); transform:translateY(-2px);}
+.btn-nav{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.78rem;
+  padding:10px 20px;
+  border-radius:100px;
+  background:linear-gradient(120deg, var(--flow), var(--flow-deep));
+  color:var(--ink);
+  font-weight:600;
+}
+.ripple{
+  position:absolute;
+  border-radius:50%;
+  background:rgba(255,255,255,.55);
+  transform:scale(0);
+  pointer-events:none;
+  animation:rippleAnim .65s ease-out;
+}
+@keyframes rippleAnim{ to{ transform:scale(1); opacity:0; } }
+
+/* ============ NAV ============ */
+.nav{
+  position:fixed; top:0; left:0; width:100%; z-index:200;
+  padding:20px 0;
+  border-bottom:1px solid transparent;
+  transition:background .35s ease, border-color .35s ease, padding .35s ease;
+}
+.nav.scrolled{
+  background:rgba(7,27,38,.78);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border-bottom-color:var(--line);
+  padding:14px 0;
+}
+.nav-inner{display:flex; align-items:center; justify-content:space-between;}
+.logo{display:flex; align-items:center; gap:10px; font-family:'Bebas Neue'; font-size:1.5rem; letter-spacing:.05em; color:var(--foam);}
+.logo svg{width:26px; height:26px;}
+.nav-links{display:flex; align-items:center; gap:34px;}
+.nav-links a{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.78rem;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:var(--chalk);
+  position:relative;
+  padding-bottom:4px;
+}
+.nav-links a::after{
+  content:''; position:absolute; left:0; bottom:0; height:1px; width:0;
+  background:var(--flow); transition:width .3s ease;
+}
+.nav-links a:hover{color:var(--foam);}
+.nav-links a:hover::after{width:100%;}
+.nav-right{display:flex; align-items:center; gap:26px;}
+.burger{display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:6px;}
+.burger span{width:22px; height:2px; background:var(--foam); border-radius:2px; transition:all .3s ease;}
+.mobile-menu{
+  display:none; position:fixed; top:0; right:0; height:100vh; width:min(78vw,320px);
+  background:var(--current); z-index:300; padding:28px; flex-direction:column; gap:26px;
+  transform:translateX(100%); transition:transform .4s ease; border-left:1px solid var(--line);
+}
+.mobile-menu.open{transform:translateX(0);}
+.mobile-menu a{font-family:'IBM Plex Mono'; font-size:.9rem; color:var(--foam); text-transform:uppercase; letter-spacing:.06em;}
+.mobile-close{align-self:flex-end; background:none; border:none; color:var(--foam); font-size:1.4rem; cursor:pointer;}
+
+/* ============ HERO ============ */
+.hero{
+  min-height:100vh; display:flex; align-items:center; position:relative; overflow:hidden; padding-top:110px;
+}
+.hero-bg{position:absolute; inset:0; z-index:0; overflow:hidden;}
+.blob{position:absolute; border-radius:50%; filter:blur(70px); opacity:.55;}
+.blob-1{width:520px; height:520px; background:radial-gradient(circle, var(--flow), transparent 70%); top:-140px; left:-120px; animation:drift1 22s ease-in-out infinite;}
+.blob-2{width:460px; height:460px; background:radial-gradient(circle, var(--surge), transparent 70%); bottom:-160px; right:-100px; opacity:.35; animation:drift2 26s ease-in-out infinite;}
+.blob-3{width:380px; height:380px; background:radial-gradient(circle, var(--flow-deep), transparent 70%); top:30%; right:10%; opacity:.4; animation:drift3 19s ease-in-out infinite;}
+@keyframes drift1{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(60px,40px) scale(1.1);}66%{transform:translate(-30px,60px) scale(.94);}}
+@keyframes drift2{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(-50px,-40px) scale(1.15);}}
+@keyframes drift3{0%,100%{transform:translate(0,0) scale(1);}40%{transform:translate(-40px,30px) scale(1.08);}70%{transform:translate(30px,-20px) scale(.92);}}
+
+.bubbles{position:absolute; inset:0; z-index:1; pointer-events:none;}
+.bubble{position:absolute; bottom:-40px; border-radius:50%; background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.55), rgba(255,255,255,.05)); animation:bubbleRise linear infinite;}
+@keyframes bubbleRise{
+  0%{transform:translateY(0) translateX(0); opacity:0;}
+  8%{opacity:.55;}
+  92%{opacity:.25;}
+  100%{transform:translateY(-115vh) translateX(var(--drift,30px)); opacity:0;}
+}
+
+.hero-content{position:relative; z-index:2; text-align:center; margin:0 auto;}
+.hero-eyebrow{justify-content:center; margin-bottom:22px;}
+.hero-title{
+  font-size:clamp(4.5rem,14vw,9rem);
+  background:linear-gradient(120deg, var(--foam) 30%, var(--flow) 65%, var(--surge) 100%);
+  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  letter-spacing:.03em;
+}
+.hero-sub{
+  max-width:620px; margin:26px auto 40px; font-size:1.12rem; color:var(--chalk);
+}
+.hero-ctas{display:flex; gap:18px; justify-content:center; flex-wrap:wrap;}
+.scroll-cue{
+  position:absolute; bottom:36px; left:50%; transform:translateX(-50%); z-index:2;
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  font-family:'IBM Plex Mono'; font-size:.7rem; letter-spacing:.16em; text-transform:uppercase; color:var(--chalk-dim);
+  animation:bob 2.4s ease-in-out infinite;
+}
+.scroll-cue svg{width:16px; height:16px;}
+
+.hero-pills{position:absolute; z-index:2; display:none;}
+.pill-chip{
+  position:absolute;
+  font-family:'IBM Plex Mono'; font-size:.72rem; letter-spacing:.03em;
+  background:var(--glass); border:1px solid var(--line); border-radius:100px;
+  padding:9px 16px; color:var(--foam); backdrop-filter:blur(8px);
+  animation:bob 5s ease-in-out infinite;
+}
+
+/* wave divider */
+.wave-divider{position:relative; width:100%; overflow:hidden; line-height:0; height:90px;}
+.wave-track{display:flex; width:200%; animation:waveDrift 16s linear infinite;}
+.wave-track svg{width:50%; height:90px; flex-shrink:0;}
+@keyframes waveDrift{ to{ transform:translateX(-50%); } }
+
+/* ============ MARQUEE ============ */
+.marquee{
+  overflow:hidden; padding:22px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,.02);
+}
+.marquee-track{display:flex; width:max-content; gap:16px; animation:marquee 30s linear infinite;}
+@keyframes marquee{ to{ transform:translateX(-50%); } }
+.chip{
+  font-family:'IBM Plex Mono'; font-size:.82rem; white-space:nowrap;
+  border:1px solid rgba(47,214,217,.3); color:var(--chalk); background:rgba(47,214,217,.05);
+  padding:9px 20px; border-radius:100px;
+}
+
+/* ============ REVEAL ============ */
+.reveal{opacity:0; transform:translateY(34px); transition:opacity .8s ease, transform .8s ease;}
+.reveal.visible{opacity:1; transform:translateY(0);}
+
+/* ============ STRUCTURE / TIMELINE ============ */
+.structure-head{text-align:center; max-width:640px; margin:0 auto 80px;}
+.structure-head .eyebrow{justify-content:center;} .structure-head .section-title{margin-top:.4em;}
+.structure-head .lead{margin:0 auto;}
+
+.timeline{position:relative; max-width:1020px; margin:0 auto; padding-left:64px;}
+.timeline::before{
+  content:''; position:absolute; left:19px; top:6px; bottom:6px; width:2px;
+  background-image:repeating-linear-gradient(180deg, var(--flow) 0, var(--flow) 40px, var(--surge) 60px, var(--flow) 100px);
+  background-size:100% 100px; animation:flowLine 3.2s linear infinite; border-radius:2px;
+}
+@keyframes flowLine{ to{ background-position:0 100px; } }
+
+.timeline-item{position:relative; margin-bottom:90px;}
+.timeline-item:last-child{margin-bottom:0;}
+.timeline-dot{
+  position:absolute; left:-64px; top:10px; width:18px; height:18px; border-radius:50%;
+  background:var(--current-2); border:2px solid var(--flow); transition:box-shadow .4s ease, background .4s ease;
+}
+.timeline-dot.active{background:var(--flow); box-shadow:0 0 0 8px rgba(47,214,217,.18), 0 0 20px 4px rgba(47,214,217,.5);}
+
+.structure-card{
+  background:var(--glass); border:1px solid var(--line); border-radius:var(--radius);
+  padding:38px; display:grid; grid-template-columns:1.05fr .95fr; gap:36px; align-items:center;
+  transition:border-color .35s ease, transform .35s ease;
+}
+.structure-card:hover{border-color:rgba(47,214,217,.35); transform:translateY(-4px);}
+.tcard-tag{font-family:'IBM Plex Mono'; font-size:.72rem; letter-spacing:.12em; color:var(--surge); text-transform:uppercase;}
+.structure-card h3{font-size:2rem; margin:.3em 0 .4em;}
+.structure-card p{color:var(--chalk); font-size:.98rem;}
+
+/* mockup frame */
+.mockup-frame{
+  border:1px solid var(--line); border-radius:14px; overflow:hidden; background:var(--abyss);
+  box-shadow:0 20px 40px -20px rgba(0,0,0,.6);
+}
+.mockup-bar{display:flex; gap:6px; padding:10px 12px; background:var(--current); border-bottom:1px solid var(--line);}
+.mockup-bar span{width:9px; height:9px; border-radius:50%; background:rgba(255,255,255,.18);}
+.mockup-body{padding:20px;}
+
+/* landing mockup */
+.m-line{height:9px; border-radius:4px; background:rgba(255,255,255,.12); margin-bottom:10px;}
+.m-line.w60{width:60%;} .m-line.w40{width:40%;} .m-line.w80{width:80%;}
+.m-cta{margin-top:16px; display:inline-block; padding:9px 20px; border-radius:100px; font-family:'IBM Plex Mono'; font-size:.72rem; background:linear-gradient(120deg,var(--flow),var(--flow-deep)); color:var(--ink);}
+
+/* auth mockup */
+.oauth-row{display:flex; gap:10px; margin-bottom:16px;}
+.oauth-circle{
+  width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-family:'IBM Plex Mono'; font-size:.78rem; font-weight:600; color:var(--foam);
+  border:1px solid var(--line); background:rgba(255,255,255,.04);
+}
+.divider-text{font-family:'IBM Plex Mono'; font-size:.68rem; color:var(--chalk-dim); text-align:center; margin:6px 0 14px; text-transform:uppercase; letter-spacing:.1em;}
+.field{height:34px; border-radius:8px; background:rgba(255,255,255,.05); border:1px solid var(--line); margin-bottom:10px;}
+
+/* dashboard mockup */
+.dash-grid{display:grid; grid-template-columns:70px 1fr; grid-template-rows:32px 1fr; gap:6px; height:190px;}
+.dash-toolbar{grid-column:1/3; background:rgba(255,255,255,.06); border-radius:6px; display:flex; align-items:center; gap:6px; padding:0 10px;}
+.dash-toolbar span{width:14px; height:14px; border-radius:4px; background:var(--flow); opacity:.6;}
+.dash-toolbar span:nth-child(2){background:var(--surge);}
+.dash-toolbar span:nth-child(3){background:var(--flow-deep);}
+.dash-side{background:rgba(255,255,255,.05); border-radius:6px;}
+.dash-canvas{background:rgba(255,255,255,.03); border-radius:6px; position:relative; padding:10px; display:flex; flex-direction:column; gap:8px;}
+.dash-block{height:22px; border-radius:5px; background:linear-gradient(90deg, var(--flow), var(--flow-deep)); opacity:.85; animation:blockPulse 3s ease-in-out infinite;}
+.dash-block:nth-child(2){width:70%; background:linear-gradient(90deg, var(--surge), var(--surge-2)); animation-delay:.4s;}
+.dash-block:nth-child(3){width:85%; animation-delay:.8s;}
+@keyframes blockPulse{0%,100%{opacity:.7;}50%{opacity:1;}}
+
+/* ============ STATS ============ */
+.stats{
+  display:flex; justify-content:center; gap:0; flex-wrap:wrap; max-width:900px; margin:0 auto;
+}
+.stat{flex:1; min-width:180px; text-align:center; padding:0 30px; position:relative;}
+.stat + .stat::before{content:''; position:absolute; left:0; top:10%; bottom:10%; width:1px; background:var(--line);}
+.stat-num{font-family:'Bebas Neue'; font-size:clamp(3rem,7vw,4.6rem); background:linear-gradient(120deg,var(--flow),var(--surge)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;}
+.stat-label{font-family:'IBM Plex Mono'; font-size:.74rem; letter-spacing:.1em; text-transform:uppercase; color:var(--chalk-dim); margin-top:8px;}
+
+/* ============ GAMIFICATION GRID ============ */
+.feature-head{text-align:center; max-width:640px; margin:0 auto 60px;}
+.feature-head .eyebrow{justify-content:center;} .feature-head .lead{margin:0 auto;}
+.feature-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:20px;}
+.feature-card{
+  background:var(--glass); border:1px solid var(--line); border-radius:16px; padding:28px 24px;
+  transition:transform .35s ease, border-color .35s ease, box-shadow .35s ease;
+}
+.feature-card:hover{transform:translateY(-6px); border-color:rgba(47,214,217,.4); box-shadow:0 18px 34px -18px rgba(47,214,217,.35);}
+.f-icon{
+  width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(135deg, rgba(47,214,217,.22), rgba(255,107,61,.14)); margin-bottom:16px;
+}
+.f-icon svg{width:22px; height:22px; stroke:var(--flow);}
+.feature-card h3{font-size:1.3rem; margin-bottom:8px; letter-spacing:.01em;}
+.feature-card p{font-size:.88rem; color:var(--chalk);}
+
+/* ============ AI COPILOT ============ */
+.ai-section{
+  background:linear-gradient(180deg, var(--current) 0%, var(--current-2) 100%);
+  clip-path:polygon(0 40px, 100% 0, 100% calc(100% - 40px), 0 100%);
+  padding:150px 0 170px;
+}
+.ai-head{text-align:center; max-width:640px; margin:0 auto 56px;}
+.ai-head .eyebrow{justify-content:center;} .ai-head .lead{margin:0 auto;}
+
+.chat-panel{
+  max-width:600px; margin:0 auto; background:var(--glass); border:1px solid var(--line);
+  border-radius:22px; overflow:hidden; box-shadow:0 30px 60px -30px rgba(0,0,0,.7);
+}
+.chat-header{display:flex; align-items:center; gap:12px; padding:18px 22px; border-bottom:1px solid var(--line); background:rgba(255,255,255,.03);}
+.chat-avatar{width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,var(--flow),var(--flow-deep)); display:flex; align-items:center; justify-content:center;}
+.chat-avatar svg{width:16px; height:16px; stroke:var(--ink);}
+.chat-title{font-family:'IBM Plex Mono'; font-size:.85rem; color:var(--foam); font-weight:600;}
+.status-dot{width:8px; height:8px; border-radius:50%; background:#4ade80; margin-left:auto; box-shadow:0 0 0 0 rgba(74,222,128,.6); animation:pulseGlow 2s infinite;}
+@keyframes pulseGlow{0%{box-shadow:0 0 0 0 rgba(74,222,128,.55);}70%{box-shadow:0 0 0 8px rgba(74,222,128,0);}100%{box-shadow:0 0 0 0 rgba(74,222,128,0);}}
+
+.chat-body{padding:26px 22px; display:flex; flex-direction:column; gap:20px;}
+.msg{max-width:82%; padding:14px 17px; border-radius:16px; font-size:.9rem;}
+.msg-user{align-self:flex-end; background:linear-gradient(120deg,var(--flow),var(--flow-deep)); color:var(--ink); border-bottom-right-radius:4px;}
+.msg-ai{align-self:flex-start; background:rgba(255,255,255,.06); border:1px solid var(--line); color:var(--chalk); border-bottom-left-radius:4px;}
+.msg-label{display:block; font-family:'IBM Plex Mono'; font-size:.66rem; letter-spacing:.08em; text-transform:uppercase; color:var(--surge); margin-bottom:6px;}
+.mini-timeline{display:flex; gap:6px; margin-top:12px; flex-wrap:wrap;}
+.mini-chip{font-family:'IBM Plex Mono'; font-size:.66rem; padding:5px 10px; border-radius:100px; background:rgba(47,214,217,.14); border:1px solid rgba(47,214,217,.3); color:var(--flow);}
+.mini-actions{display:flex; gap:8px; margin-top:12px;}
+.mini-btn{font-family:'IBM Plex Mono'; font-size:.68rem; padding:7px 14px; border-radius:100px; border:1px solid var(--line); color:var(--foam); background:rgba(255,255,255,.04); cursor:pointer;}
+.mini-btn.primary{background:var(--surge); color:var(--ink); border-color:var(--surge); font-weight:600;}
+.typing{align-self:flex-start; display:flex; gap:5px; padding:14px 17px; background:rgba(255,255,255,.06); border:1px solid var(--line); border-radius:16px; border-bottom-left-radius:4px;}
+.typing span{width:6px; height:6px; border-radius:50%; background:var(--chalk); animation:typingBounce 1.3s infinite;}
+.typing span:nth-child(2){animation-delay:.15s;} .typing span:nth-child(3){animation-delay:.3s;}
+@keyframes typingBounce{0%,60%,100%{transform:translateY(0); opacity:.4;}30%{transform:translateY(-5px); opacity:1;}}
+
+/* ============ FINAL CTA ============ */
+.final-cta{text-align:center; padding:160px 0 120px;}
+.final-cta h2{font-size:clamp(2.6rem,7vw,4.4rem);}
+.final-cta .lead{margin:20px auto 40px;}
+.pulse-btn{animation:btnPulse 2.6s ease-in-out infinite;}
+@keyframes btnPulse{0%,100%{box-shadow:0 8px 24px -8px rgba(47,214,217,.55);}50%{box-shadow:0 8px 34px -4px rgba(47,214,217,.85);}}
+
+/* ============ FOOTER ============ */
+footer{border-top:1px solid var(--line); padding:44px 0;}
+.footer-inner{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:20px;}
+.footer-logo{display:flex; align-items:center; gap:9px; font-family:'Bebas Neue'; font-size:1.2rem; color:var(--foam);}
+.footer-logo svg{width:20px; height:20px;}
+.footer-meta{font-family:'IBM Plex Mono'; font-size:.72rem; color:var(--chalk-dim); letter-spacing:.04em;}
+.footer-links{display:flex; gap:24px; font-family:'IBM Plex Mono'; font-size:.75rem; color:var(--chalk);}
+.footer-links a:hover{color:var(--flow);}
+
+/* ============ RESPONSIVE ============ */
+@media(max-width:900px){
+  .nav-links{display:none;}
+  .burger{display:flex;}
+  .mobile-menu{display:flex;}
+  .structure-card{grid-template-columns:1fr;}
+  .feature-grid{grid-template-columns:repeat(2,1fr);}
+  .timeline{padding-left:48px;}
+  .timeline-dot{left:-48px;}
+}
+@media(max-width:640px){
+  section{padding:80px 0;}
+  .feature-grid{grid-template-columns:1fr;}
+  .stats{flex-direction:column; gap:36px;}
+  .stat + .stat::before{display:none;}
+  .structure-card{padding:26px;}
+  .ai-section{clip-path:none; padding:100px 0;}
+  .chat-body{padding:20px 16px;}
+  .hero-title{font-size:clamp(3.4rem,18vw,5rem);}
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; scroll-behavior:auto !important;}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<nav class="nav" id="nav">
+  <div class="container nav-inner">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C12 2 5 10.5 5 15a7 7 0 0 0 14 0C19 10.5 12 2 12 2Z" fill="url(#g1)"/><defs><linearGradient id="g1" x1="5" y1="2" x2="19" y2="22"><stop stop-color="#2fd6d9"/><stop offset="1" stop-color="#ff6b3d"/></linearGradient></defs></svg>
+      FLOW
+    </div>
+    <div class="nav-links">
+      <a href="#structure">Structure</a>
+      <a href="#features">Features</a>
+      <a href="#ai">AI Copilot</a>
+    </div>
+    <div class="nav-right">
+      <a href="#cta" class="btn-nav">Get Started</a>
+      <button class="burger" id="burgerBtn" aria-label="Open menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" id="mobileClose" aria-label="Close menu">✕</button>
+  <a href="#structure">Structure</a>
+  <a href="#features">Features</a>
+  <a href="#ai">AI Copilot</a>
+  <a href="#cta" class="btn-nav" style="width:fit-content;">Get Started</a>
+</div>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="hero-bg">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+  <div class="bubbles" id="bubbles"></div>
+
+  <div class="container hero-content">
+    <div class="eyebrow">Goal tracking, gamified</div>
+    <h1 class="hero-title">FLOW</h1>
+    <p class="hero-sub">Drag your goals onto a timeline. Flow turns study sessions, workouts, and daily habits into a current you actually want to ride — with an AI that reshapes the plan when life gets in the way.</p>
+    <div class="hero-ctas">
+      <button class="btn btn-primary btn-ripple">Get Started →</button>
+      <a href="#structure" class="btn btn-ghost">See how it works</a>
+    </div>
+  </div>
+
+  <div class="scroll-cue">
+    Scroll
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+</header>
+
+<div class="wave-divider">
+  <div class="wave-track">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,45 C150,90 350,0 600,45 C850,90 1050,0 1200,45 L1200,90 L0,90 Z" fill="#0d3340"/></svg>
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,45 C150,90 350,0 600,45 C850,90 1050,0 1200,45 L1200,90 L0,90 Z" fill="#0d3340"/></svg>
+  </div>
+</div>
+
+<!-- ============ MARQUEE ============ -->
+<div class="marquee">
+  <div class="marquee-track" id="marqueeTrack">
+    <div class="chip">Reading Block</div>
+    <div class="chip">Coding Practice</div>
+    <div class="chip">Exercise</div>
+    <div class="chip">Meditation</div>
+    <div class="chip">Deep Work</div>
+    <div class="chip">5K Run</div>
+    <div class="chip">Language Drill</div>
+    <div class="chip">Sketch Session</div>
+  </div>
+</div>
+
+<!-- ============ STRUCTURE ============ -->
+<section id="structure">
+  <div class="container">
+    <div class="structure-head reveal">
+      <div class="eyebrow">Application structure</div>
+      <h2 class="section-title">Three pages. One current.</h2>
+      <p class="lead">Every session starts the same way — land, sign in, build.</p>
+    </div>
+
+    <div class="timeline">
+
+      <div class="timeline-item reveal" data-tl>
+        <div class="timeline-dot" data-dot></div>
+        <div class="structure-card">
+          <div>
+            <div class="tcard-tag">Page 01 · Entry</div>
+            <h3>Landing Page</h3>
+            <p>One screen, one job: show what Flow does and get out of the way. A single "Get Started →" button carries every visitor straight into sign-up — no maze, no scroll-hunting.</p>
+          </div>
+          <div class="mockup-frame">
+            <div class="mockup-bar"><span></span><span></span><span></span></div>
+            <div class="mockup-body">
+              <div class="m-line w40" style="height:14px;"></div>
+              <div class="m-line w80" style="margin-top:10px;"></div>
+              <div class="m-line w60"></div>
+              <div class="m-cta">Get Started →</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item reveal" data-tl>
+        <div class="timeline-dot" data-dot></div>
+        <div class="structure-card">
+          <div>
+            <div class="tcard-tag">Page 02 · Entry</div>
+            <h3>Sign In / Sign Up</h3>
+            <p>Email and password, hashed with bcrypt or argon2 — or one tap through Google, Apple, or Microsoft. OAuth hands back a provider ID, email, name, and photo automatically; Apple's "Hide My Email" and name-once quirk are handled on first login. Display name and avatar stay optional, set up later in settings.</p>
+          </div>
+          <div class="mockup-frame">
+            <div class="mockup-bar"><span></span><span></span><span></span></div>
+            <div class="mockup-body">
+              <div class="oauth-row">
+                <div class="oauth-circle">G</div>
+                <div class="oauth-circle"></div>
+                <div class="oauth-circle">MS</div>
+              </div>
+              <div class="divider-text">or continue with email</div>
+              <div class="field"></div>
+              <div class="field"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item reveal" data-tl>
+        <div class="timeline-dot" data-dot></div>
+        <div class="structure-card">
+          <div>
+            <div class="tcard-tag">Page 03 · Workspace</div>
+            <h3>Dashboard</h3>
+            <p>The workspace itself: a top toolbar of drag-and-drop blocks, a left sidebar listing every Flow you've built, and a right sidebar where the AI agent is always one message away.</p>
+          </div>
+          <div class="mockup-frame">
+            <div class="mockup-bar"><span></span><span></span><span></span></div>
+            <div class="mockup-body">
+              <div class="dash-grid">
+                <div class="dash-toolbar" style="grid-column:1/3;"><span></span><span></span><span></span></div>
+                <div class="dash-side"></div>
+                <div class="dash-canvas">
+                  <div class="dash-block"></div>
+                  <div class="dash-block"></div>
+                  <div class="dash-block"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATS ============ -->
+<section style="padding:60px 0 110px;">
+  <div class="container">
+    <div class="stats reveal">
+      <div class="stat">
+        <div class="stat-num counter" data-target="3" data-pad="2">00</div>
+        <div class="stat-label">Dashboard Panels</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num counter" data-target="3" data-pad="2">00</div>
+        <div class="stat-label">Quest Tiers</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num counter" data-target="2" data-pad="2">00</div>
+        <div class="stat-label">Adaptive AI Systems</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GAMIFICATION ============ -->
+<section id="features">
+  <div class="container">
+    <div class="feature-head reveal">
+      <div class="eyebrow">Core features</div>
+      <h2 class="section-title">Turn discipline into a game you want to play.</h2>
+      <p class="lead">Every block you drag onto the canvas feeds a system built to keep momentum, not just track it.</p>
+    </div>
+
+    <div class="feature-grid">
+
+      <div class="feature-card reveal">
+        <div class="f-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="7" height="15" rx="1"/><rect x="14" y="9" width="7" height="11" rx="1"/><rect x="8.5" y="2" width="0" height="0"/></svg></div>
+        <h3>Milestones &amp; Blocks</h3>
+        <p>Drag Reading, Coding Practice, Exercise, or any activity block onto a visual timeline. The canvas is the plan.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="f-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21l4-4M4 21v-5h5M20 3l-4 4M20 3v5h-5"/><circle cx="12" cy="12" r="4"/></svg></div>
+        <h3>RPG Quest Structure</h3>
+        <p>Sort every Flow into Major Goals, Minor Goals, or Side Quests — long arcs, checkpoints, and quick daily habits, all on the same board.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="f-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+        <h3>Flow Templates</h3>
+        <p>Start from a ready-made path — Learn Next.js in 30 Days, 5K Running Habit, Daily Meditation — and adjust from there.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="f-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c3 4-2 5-2 9a4 4 0 0 0 8 0c0-1.5-.7-2.6-1.5-3.6.3 2-.9 2.6-1.5 1.6C15.8 7 14 5.5 12 2Z"/><path d="M8 14a4 4 0 0 0 8 0"/></svg></div>
+        <h3>Streak Protection</h3>
+        <p>Built-in streak freezes cover designated rest days, so one planned break doesn't erase weeks of consistency.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="f-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 6.9L21 9.3l-5.5 4.2L17.4 21 12 16.9 6.6 21l1.9-7.5L3 9.3l6.6-.4z"/></svg></div>
+        <h3>Flow XP</h3>
+        <p>Every completed block pays XP. Levels climb as the streak holds.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="f-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M11 20V4M18 20v-7"/><path d="M2 20h20"/></svg></div>
+        <h3>Visual Analytics</h3>
+        <p>Interactive charts surface completion rates, time spent per Flow, and the hours you actually get things done.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="f-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="6" width="10" height="12" rx="3"/><path d="M9 3h6M9 21h6M15.5 9.5l-3 3"/></svg></div>
+        <h3>Smartwatch Companion</h3>
+        <p>A single check button on the wrist marks a block done without reaching for a phone.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="f-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18M8 4v14"/></svg></div>
+        <h3>Home Screen Widgets</h3>
+        <p>iOS and Android widgets surface the next upcoming block before you even open the app.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ AI COPILOT ============ -->
+<section id="ai" class="ai-section">
+  <div class="container">
+    <div class="ai-head reveal">
+      <div class="eyebrow">Integrated AI</div>
+      <h2 class="section-title">An agent that lives in the sidebar, not a settings menu.</h2>
+      <p class="lead">Three jobs, one conversation thread.</p>
+    </div>
+
+    <div class="chat-panel reveal">
+      <div class="chat-header">
+        <div class="chat-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></div>
+        <div class="chat-title">Flow Assistant</div>
+        <div class="status-dot"></div>
+      </div>
+      <div class="chat-body">
+
+        <div class="msg msg-user">I want to learn Next.js and Tailwind CSS in 6 weeks, but I only have 4 hours a week.</div>
+
+        <div class="msg msg-ai">
+          <span class="msg-label">AI Flow Architect</span>
+          Got it. I mapped 6 weeks into 24 blocks — two 2-hour sessions a week, resource links included.
+          <div class="mini-timeline">
+            <span class="mini-chip">Wk 1</span><span class="mini-chip">Wk 2</span><span class="mini-chip">Wk 3</span><span class="mini-chip">Wk 4</span><span class="mini-chip">Wk 5</span><span class="mini-chip">Wk 6</span>
+          </div>
+        </div>
+
+        <div class="msg msg-ai">
+          <span class="msg-label">Adaptive Scheduling</span>
+          I noticed you finish tasks around 8:00 PM but skip the 7:00 AM block most days. Want me to shift Coding Flow to evenings?
+          <div class="mini-actions">
+            <button class="mini-btn primary">Shift it</button>
+            <button class="mini-btn">Keep 7 AM</button>
+          </div>
+        </div>
+
+        <div class="msg msg-ai">
+          <span class="msg-label">Accountability Partner</span>
+          🔥 14-day streak — your longest yet. This week: 6 of 7 blocks done, 340 XP earned.
+        </div>
+
+        <div class="typing"><span></span><span></span><span></span></div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<section id="cta" class="final-cta">
+  <div class="container">
+    <div class="reveal">
+      <div class="eyebrow" style="justify-content:center;">Start now</div>
+      <h2>Ready to find your flow?</h2>
+      <p class="lead" style="margin-left:auto; margin-right:auto;">Build your first Flow in the time it takes to read this sentence.</p>
+      <button class="btn btn-primary btn-ripple pulse-btn" style="margin-top:10px;">Get Started →</button>
+    </div>
+  </div>
+</section>
+
+<div class="wave-divider" style="transform:rotate(180deg);">
+  <div class="wave-track">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,45 C150,90 350,0 600,45 C850,90 1050,0 1200,45 L1200,90 L0,90 Z" fill="#0d3340"/></svg>
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,45 C150,90 350,0 600,45 C850,90 1050,0 1200,45 L1200,90 L0,90 Z" fill="#0d3340"/></svg>
+  </div>
+</div>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="container footer-inner">
+    <div class="footer-logo">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C12 2 5 10.5 5 15a7 7 0 0 0 14 0C19 10.5 12 2 12 2Z" fill="url(#g2)"/><defs><linearGradient id="g2" x1="5" y1="2" x2="19" y2="22"><stop stop-color="#2fd6d9"/><stop offset="1" stop-color="#ff6b3d"/></linearGradient></defs></svg>
+      FLOW
+    </div>
+    <div class="footer-meta">Technical &amp; Feature Specification · v1.0</div>
+    <div class="footer-links">
+      <a href="#structure">Structure</a>
+      <a href="#features">Features</a>
+      <a href="#ai">AI Copilot</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ---------- Nav scroll state ----------
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 30);
+}, { passive:true });
+
+// ---------- Mobile menu ----------
+const burgerBtn = document.getElementById('burgerBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+const mobileClose = document.getElementById('mobileClose');
+burgerBtn.addEventListener('click', () => mobileMenu.classList.add('open'));
+mobileClose.addEventListener('click', () => mobileMenu.classList.remove('open'));
+mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileMenu.classList.remove('open')));
+
+// ---------- Ripple effect ----------
+document.querySelectorAll('.btn-ripple').forEach(btn => {
+  btn.style.position = 'relative';
+  btn.style.overflow = 'hidden';
+  btn.addEventListener('click', function(e){
+    const rect = this.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height) * 2;
+    const ripple = document.createElement('span');
+    ripple.className = 'ripple';
+    ripple.style.width = ripple.style.height = size + 'px';
+    ripple.style.left = (e.clientX - rect.left - size/2) + 'px';
+    ripple.style.top = (e.clientY - rect.top - size/2) + 'px';
+    this.appendChild(ripple);
+    ripple.addEventListener('animationend', () => ripple.remove());
+  });
+});
+
+// ---------- Scroll reveal ----------
+const revealEls = document.querySelectorAll('.reveal');
+const revealIO = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      revealIO.unobserve(entry.target);
+    }
+  });
+}, { threshold:0.14 });
+revealEls.forEach(el => revealIO.observe(el));
+
+// stagger feature cards slightly
+document.querySelectorAll('.feature-grid .feature-card').forEach((el,i) => {
+  el.style.transitionDelay = (i % 4) * 0.08 + 's';
+});
+
+// ---------- Active timeline dot ----------
+const dots = document.querySelectorAll('[data-dot]');
+const items = document.querySelectorAll('[data-tl]');
+const dotIO = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    const idx = Array.from(items).indexOf(entry.target);
+    if (entry.isIntersecting && idx > -1) dots[idx].classList.add('active');
+  });
+}, { threshold:0.5 });
+items.forEach(el => dotIO.observe(el));
+
+// ---------- Counters ----------
+function animateCounter(el){
+  const target = +el.dataset.target;
+  const pad = +(el.dataset.pad || 0);
+  const duration = 1200;
+  let start = null;
+  function step(ts){
+    if(!start) start = ts;
+    const progress = Math.min((ts - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const value = Math.round(target * eased);
+    el.textContent = String(value).padStart(pad, '0');
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+const counterIO = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      animateCounter(entry.target);
+      counterIO.unobserve(entry.target);
+    }
+  });
+}, { threshold:0.6 });
+document.querySelectorAll('.counter').forEach(el => counterIO.observe(el));
+
+// ---------- Bubbles ----------
+const bubbleContainer = document.getElementById('bubbles');
+function spawnBubble(){
+  const b = document.createElement('div');
+  b.className = 'bubble';
+  const size = 6 + Math.random() * 18;
+  b.style.width = b.style.height = size + 'px';
+  b.style.left = Math.random() * 100 + '%';
+  b.style.setProperty('--drift', (Math.random()*60 - 30) + 'px');
+  const duration = 8 + Math.random() * 10;
+  b.style.animationDuration = duration + 's';
+  bubbleContainer.appendChild(b);
+  setTimeout(() => b.remove(), duration * 1000);
+}
+for (let i=0; i<14; i++){
+  setTimeout(spawnBubble, i * 600);
+}
+setInterval(spawnBubble, 900);
+
+// ---------- Marquee duplicate for seamless loop ----------
+const track = document.getElementById('marqueeTrack');
+track.innerHTML += track.innerHTML;
+</script>
+</body>
+</html>
